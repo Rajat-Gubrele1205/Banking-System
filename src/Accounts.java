@@ -57,6 +57,7 @@ class SavingsAccount extends Accounts{
     public void ATMWithdrawal(){
         System.out.println("Enter the  amount you want to withdraw: ");
         int amount = sc.nextInt();
+        System.out.println(balance);
         if(amount>maxAmountWithdrawal || amount>balance || ATMWithdrawalAmount>maxDailyWithdrawal){
             System.out.println("Withdraw Failed");
             return;
@@ -68,7 +69,8 @@ class SavingsAccount extends Accounts{
             }
             else{balance-=amount;}
         ATMWithdrawalAmount+=amount;
-        System.out.println("Amount Withdrawn Successfully ");
+        ATMWithdrawalCount++;
+        System.out.println("Amount Withdrawn Successfully " + balance);
         }
     }
     public void createATMCard(){

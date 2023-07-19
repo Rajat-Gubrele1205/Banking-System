@@ -1,32 +1,42 @@
 //import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.*;
 class CustomerDetails{
-    public String Fname;
-    public String Lname;
+    public String name;
+    //public String Lname;
     public int customerID;
     public long allaccounts[];
-    static int accountno;
+    public int accountno;
     public int accounttype;
     private String aadharno;
     public long accbalance;
     public long userAge;
+    static int numbers=0;
      //private String 
     Scanner sc = new Scanner(System.in);
-    ArrayList<Integer> arr = new ArrayList<>();
-    Map<Integer,ArrayList[]> map = new HashMap<Integer,ArrayList[]>();
+    //ArrayList<Integer> arr = new ArrayList<>();
+    static Map<Integer,ArrayList<Integer>> map = new HashMap<Integer,ArrayList<Integer>>();
+
 
     public void newAccount(){
 
-
-        System.out.println("Do you have account in this bank(y/n): ");
-        String ch = sc.nextLine();
-        
         System.out.print("\nNAME : ");
         //Scanner sc = new Scanner(System.in);
-        Fname = sc.nextLine();
+        name = sc.nextLine();
+        System.out.println("Do you have account in this bank(y/n): ");
+        char ch = sc.nextLine().charAt(0);
+        accountno=numbers+1;
+        numbers++;
+        if(ch=='y'){
+            System.out.println("Enter your Customer ID: ");
+            int cID = sc.nextInt();
+            map.get(cID).add(accountno);
+        }
+        else{
+            customerID=generateCustomerId(name);
+            map.put(customerID,new ArrayList<Integer>());
+            map.get(customerID).add(accountno);
+        }  
         //customerID=generateCustomerId(Fname);
         
         System.out.print("Age :");
@@ -46,28 +56,34 @@ class CustomerDetails{
              return;}
         //System.out.print("Enter Aadhar number : ");
         //aadharno = sc.nextLine();
-        accountno=accountno+1;
-        // if(ch=="y"){
-        //     System.out.println("Enter your Customer ID: ");
-        //     long cID = sc.nextLong();
-        //     map.put(customerID,arr.add(accountno));
-        // }
+        
+        
+        
         //accountno = accKey;
         //ThreadLocalRandom.current().nextLong(10000,2000);
         System.out.println("\nAccount Successfully Created");
         System.out.println(customerID);
-        System.out.println("Your Account no. is : " + accountno+"\n");
-    
+        System.out.println("Your Account no. is : " + accountno+"\n"+ "Your Customer ID: "+customerID+"\n");
+        
     
     }
 
-    
+    public ArrayList<Integer> getAccounts(int cID){
+        //System.out.println(map);
+        ArrayList<Integer> arr = map.get(cID);
+        //System.out.println(arr.size());
+        return arr;
+    }
     public void showAccounts(){
-        System.out.println("Details of account\n");
-        System.out.println("Name: "+Fname);
+
+        
+        
+        ///System.out.println("Details of account\n");
+        System.out.println("Name: "+name);
         System.out.println("Account Type: "+accounttype);
-        System.out.println("Aadhar: "+aadharno);
+        //System.out.println("Aadhar: "+aadharno);
         System.out.println("Your Balance: "+accbalance);
+        System.out.println("\n----------------------\n");
     }
     private int generateCustomerId(String Fname) {
         int sum = 0;

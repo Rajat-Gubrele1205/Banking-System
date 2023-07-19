@@ -1,16 +1,21 @@
+import java.util.ArrayList;
 import java.util.Scanner;
-
+import java.util.*;
 public class App {
-    static CustomerDetails customers[] = new CustomerDetails[1000];
+    public static CustomerDetails customers[] = new CustomerDetails[1000];
+    public static SavingsAccount users[] = new SavingsAccount[1000];
+    
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
         int accKey = -1;
         int input=0;
-        
-        //CustomerDetails customers[] = new CustomerDetails[1000];
+        // for(int i=0;i<users.length;i++){
+        //     users[i] = new SavingsAccount(customers[i]);
+        // }
+       
         while(input!=4){
             System.out.println("Welcome to Inito Bank\n");
-            System.out.println("1.) Open an account\n2.) Withdraw\n3.) ATM Withdrawal\n4.) Exit\n");
+            System.out.println("1.) Open an account\n2.) Withdraw\n3.) Show Accounts\n4.) Exit\n");
             input = sc.nextInt();
             switch(input){
 
@@ -18,40 +23,34 @@ public class App {
                     accKey++;
                     customers[accKey] = new CustomerDetails();
                     customers[accKey].newAccount();
+                    users[accKey] = new SavingsAccount(customers[accKey]);
                     break;
                 case 2:
                     System.out.println("Enter the Account Number: ");
                     int accnoInput = sc.nextInt();
-                    //boolean ifExist=false;
-                    int index=search(accnoInput);
+                    
+                    int index=indexSearch(accnoInput);
                     int type = customers[index].accounttype;
                     if(type==1){
-                        SavingsAccount user = new SavingsAccount(customers[index]);
-                        user.directWithdraw();
-                        customers[index].accbalance=user.superBalance();
-                    //  System.out.println(user.superBalance());
-                    // System.out.println(customers[index].accbalance); 
+                        
+                        users[index].ATMWithdrawal();
+                        customers[index].accbalance=users[index].superBalance();
+                   
                     }
-                    //customers[index].showAccounts();
+                    
                     break;
                 case 3:
-                    // System.out.println("Enter the Account Number: ");
-                    // long accnoInput = sc.nextLong();
-                    // boolean ifExist=false;
-                    // int index=0;
-                    // for(int i=0;i<customers.length;i++){
-                    //     if(customers[i].accountno == accnoInput){
-                    //         ifExist=true;
-                    //         index=i;
-                    //         break;
-                    //     }
-                    //     //if (ifExist){break;}
-                    // }
-                    // int type = customers[index].accounttype;
-                    // if(type==1){
-                    //     SavingsAccount user = new SavingsAccount(customers[index]);
-                    //     user.withdraw();
-                    // }
+                    accKey++;
+                    customers[accKey] = new CustomerDetails();
+                    System.out.println("Enter the Customer ID: ");
+                    int cID = sc.nextInt();
+                    ArrayList<Integer> arr = customers[accKey].getAccounts(cID); 
+                    //System.out.println(arr.size());
+                    for(int i=0;i<arr.size();i++){
+                      //  System.out.println(arr.get(i));
+                        int index2 = indexSearch(arr.get(i));
+                        customers[index2].showAccounts();
+                    }
                     break;
                 case 4:
                     break;
@@ -61,34 +60,20 @@ public class App {
             }  
         }
         
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     }
-    // public Object cust(int index){
-    //     return customers[index];
-    // }
-    public static int search(int accno){
+    
+    public static int indexSearch(int accno){
         int index=-1;
+        
         for(int i=0;i<customers.length;i++){
+          
             if(customers[i].accountno == accno){
-                            //ifExist=true;
+            
                 index=i;
                 break;
             }
-                        //if (ifExist){break;}
+                      
         }
         return index;
     }
