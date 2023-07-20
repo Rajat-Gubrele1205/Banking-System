@@ -1,12 +1,14 @@
 
 import java.util.*;
 import java.time.*;
+import java.lang.Math;
 class Accounts {
     Scanner sc = new Scanner(System.in);
     protected long accountno;
     protected long balance;
     protected CustomerDetails customer ;
     protected List<Transaction> transactions;
+    
 
     public Accounts(CustomerDetails customer){
         this.customer = customer;
@@ -35,8 +37,8 @@ class Accounts {
         }
         else{
             balance-=amount;
-            Transaction transaction = new Transaction("Withdraw", amount);
-            transactions.add(transaction);
+            // Transaction transaction = new Transaction("Withdraw", amount);
+            // transactions.add(transaction);
             System.out.println("Amount Withdrawn Successfully");
         }
     }
@@ -49,6 +51,20 @@ class Accounts {
                     ", Amount: " + transaction.getAmount() +
                     ", Timestamp: " + transaction.getTimestamp());
         }
+    }
+    public void netProfit(){
+        System.out.println("Profit/Loss for Account Number: " + customer.accountno);
+        int net=0;
+        for (Transaction transaction : transactions) {
+            if(transaction.getTransactionType()=="Deposit" || transaction.getTransactionType()=="Interest"){
+                net+=transaction.getAmount();
+            }
+            else if(transaction.getTransactionType()=="Withdraw") {
+                net-=transaction.getAmount();
+            }
+            
+        }
+        System.out.println("Net profit/loss: " + net);
     }
     
     
@@ -66,7 +82,9 @@ class SavingsAccount extends Accounts{
     
     private int ATMWithdrawalCount;
     private int ATMWithdrawalAmount;
-
+    public int ATM_Card;
+    public int CVV;
+    public int expiryYear;
 
     public SavingsAccount(CustomerDetails customer){
         super(customer);
@@ -74,6 +92,9 @@ class SavingsAccount extends Accounts{
     public void applyInterest(){
         double interest = (balance*interestRate)/100;
         balance+=interest;
+        Transaction transaction = new Transaction("Interest", interest);
+        transactions.add(transaction);
+
     }
     public void ATMWithdrawal(){
         System.out.println("Enter the  amount you want to withdraw: ");
@@ -81,7 +102,7 @@ class SavingsAccount extends Accounts{
         dailyCheck();
         monthCheck();
         //System.out.println(balance);
-        if(amount>maxAmountWithdrawal || amount>balance || ATMWithdrawalAmount+amount>maxDailyWithdrawal){
+        if(amount>maxAmountWithdrawal || amount>balance || ATMWithdrawalAmount+amount>maxDailyWithdrawal || amount+withdrawalCharge>balance){
             System.out.println("Withdraw Failed");
             return;
         }
@@ -91,7 +112,7 @@ class SavingsAccount extends Accounts{
                 
             }
             else{balance-=amount;}
-        Transaction transaction = new Transaction("ATM Withdrawal", amount);
+        Transaction transaction = new Transaction("Withdraw", amount);
         transactions.add(transaction);    
         ATMWithdrawalAmount+=amount;
         ATMWithdrawalCount++;
@@ -99,7 +120,10 @@ class SavingsAccount extends Accounts{
         }
     }
     public void createATMCard(){
-
+        
+        ATM_Card = (int)(Math.random() * (100000 - 10000 + 1) + 10000);
+        CVV=(int)(Math.random() * (1000 - 100 + 1) + 100);
+        expiryYear=2023+(int)(Math.random() * (50 - 10 + 1) + 10 );
     }
 
     public void directWithdraw(){
@@ -112,6 +136,8 @@ class SavingsAccount extends Accounts{
         else{
             balance-=amount;
             ATMWithdrawalAmount+=amount;
+            Transaction transaction = new Transaction("Withdraw", amount);
+            transactions.add(transaction);
             System.out.println("Amount Withdrawn Successfully \n" + "Your Current Balance: " + balance);
         }
         
@@ -180,6 +206,8 @@ class CurrentAccount extends Accounts{
         }
         balance+=(amount*99.5)/100;
         monthlyTransactionCount++;
+        Transaction transaction = new Transaction("Deposit", amount);
+        transactions.add(transaction);
         System.out.println("Amount Deposited Successfully \n" + "Your Current Balance: " + balance);
     }
     public void withdrawMoney(){
@@ -230,23 +258,24 @@ class LoanAccount{
     private double interestRate;
     private int loanDuration;
     private CustomerDetails customer;
-    private int totalDeposits;
+    private long totalDeposits;
+    private int loanType;
+    private double principleamount;
+    private double validAmount;
+    public LocalDate creationDate;
     
     public LoanAccount(CustomerDetails customer){
         this.loanAmount = customer.loanAmount;
         this.loanDuration = customer.loanDuration;
         this.customer = customer;
         this.totalDeposits = customer.totalBalance;
+        this.loanType = customer.loanType;
+        this.validAmount = (totalDeposits*40)/100;
+        this.principleamount=loanAmount;
     }
-    public void maxEligibleLoan(){
-        //  ArrayList<Integer> arr = customer.getAccounts(cID); 
-        //             //System.out.println(arr.size());
-        //             for(int i=0;i<arr.size();i++){
-        //               //  System.out.println(arr.get(i));
-        //                 int index2 = indexSearch(arr.get(i));
-        //                 customers[index2].showAccounts();
-        //             }
-    }
+    Scanner sc = new Scanner(System.in);
+    LocalDate date = LocalDate.now();
+
     public double setInterestRate(int num){
         switch(num){
             case 1:
@@ -268,10 +297,25 @@ class LoanAccount{
         return interestRate;
     }
     public boolean checkEligibility(){
-        if(loanAmount<minLoanAmount || loanDuration<minLoanDuration || loanAmount>(totalDeposits*maxLoanAmountPercentage)/100){
+        if(loanAmount<minLoanAmount || loanDuration<minLoanDuration || loanAmount>validAmount){
             return false;
         }
         return true;
+    }
+
+    public void loanInterest(){
+       loanAmount = loanAmount * (1+setInterestRate(loanType)/100);
+    }
+    public void installments(){
+        System.out.println("Enter the amount you want to pay: ");
+        int amount = sc.nextInt();
+        if(amount>principleamount*0.1){
+            System.out.println("Permission Denied");
+        }
+        loanAmount-=amount;
+    }
+    public LocalDate getDate(){
+        return creationDate;
     }
     // public int indexSearch(ArrayList<Integer> arr,int accno){
     //     int index=-1;

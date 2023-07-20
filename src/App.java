@@ -11,22 +11,11 @@ public class App {
         Scanner sc = new Scanner(System.in);
         int accKey = -1;
         int input=0;
-        
-        while(input!=4){
-            LocalDate date = LocalDate.now();
-            if(monthCheck(date)){
-                for(int i=0;i<savingCustomer.length;i++){
-                    savingCustomer[i].applyInterest();
-                    savingCustomer[i].NRV();
-                    currentCustomer[i].NRV();
-                    currentCustomer[i].transactionCountCheck();
-                    customers[i].accbalance=savingCustomer[i].superBalance();
-                    customers[i].accbalance=currentCustomer[i].superBalance();
-
-                }
-            }
+        boolean loaded=false;
+        while(input!=6){
+            
             System.out.println("Welcome to Inito Bank\n");
-            System.out.println("1.) Open an account\n2.) Withdraw\n3.) Show Accounts\n4.) Exit\n");
+            System.out.println("1.) Open an account\n2.) Withdraw/Deposit\n3.) Show Accounts\n4.) Print PassBook\n5.) Profit/Loss\n");
             input = sc.nextInt();
             switch(input){
 
@@ -36,19 +25,31 @@ public class App {
                     customers[accKey].newAccount();
                     savingCustomer[accKey] = new SavingsAccount(customers[accKey]);
                     currentCustomer[accKey] = new CurrentAccount(customers[accKey]);
-                    loanCustomer[accKey] = new LoanAccount(customers[accKey]);
-
+                    // savingCustomer[accKey].createATMCard();
+                    // savingCustomer[accKey].ATM_Card=customers[accKey].ATM_Card;
+                    // savingCustomer[accKey].CVV=customers[accKey].CVV;
+                    // savingCustomer[accKey].expiryYear=customers[accKey].expiryYear;
                     // Loan account
                     if(customers[accKey].accounttype==3){
-                        ArrayList<Integer> arr1 = customers[accKey].arr; 
-                    //System.out.println(arr.size());
-                        int totalBalance=0;
+                        ArrayList<Integer> arr1 = customers[accKey].arr1;
+                      //3  System.out.println(arr1); 
+                    //System.out.println(arr1.size());
+                        long totalBalance=0;
                         for(int i=0;i<arr1.size();i++){
                         //  System.out.println(arr.get(i));
                             int index2 = indexSearch(arr1.get(i));
+                            //System.out.println(index2);
                             totalBalance+=customers[index2].accbalance;
                     }
+                    //System.out.print(totalBalance);
                     customers[accKey].totalBalance=totalBalance;
+                    //System.out.print(customers[accKey].totalBalance);
+                    loanCustomer[accKey] = new LoanAccount(customers[accKey]);
+                    if(loanCustomer[accKey].checkEligibility()){
+                        customers[accKey].loanData(customers[accKey].customerID);
+                        loanCustomer[accKey].creationDate = customers[accKey].date;
+                        //customers[accKey].map.get(customers[accKey].customerID).add(customers[accKey].accountno);
+                    }
                     }
                     
                     break;
@@ -56,10 +57,12 @@ public class App {
                 case 2:
                     System.out.println("Enter the Account Number: ");
                     int accnoInput = sc.nextInt();
-                    
+                    System.out.println("1.)Withdraw\n2.)Deposit");
+                    int transactiontype = sc.nextInt();
                     int index=indexSearch(accnoInput);
                     int type = customers[index].accounttype;
-                    if(type==1){
+                    if(transactiontype==1){
+                        if(type==1){
 
                         System.out.println("1.)Direct\n2.)ATM");
                         int withdrawalType = sc.nextInt();
@@ -77,13 +80,28 @@ public class App {
                         currentCustomer[index].withdrawMoney();
                         customers[index].accbalance=currentCustomer[index].superBalance();
                     }
+                    }
+                    else if(transactiontype==2){
+                        if(type==1){
+                            savingCustomer[index].deposit();
+                            customers[index].accbalance=savingCustomer[index].superBalance();
+                        }
+                        else if(type==2){
+                            currentCustomer[index].depositMoney();
+                            customers[index].accbalance=currentCustomer[index].superBalance();
+                        }
+                    }
+                    
                     
                     break;
                 case 3:
                     // accKey++;
                     // customers[accKey] = new CustomerDetails();
+                    
                     System.out.println("Enter the Customer ID: ");
                     int cID = sc.nextInt();
+                    
+                    
                     ArrayList<Integer> arr = customers[0].getAccounts(cID); 
                     //System.out.println(arr.size());
                     for(int i=0;i<arr.size();i++){
@@ -111,13 +129,12 @@ public class App {
                     int index3=indexSearch(accnoInput1);
                     int type1 = customers[index3].accounttype;
                     if(type1==1){
-                        savingCustomer[index3].deposit();
-                        customers[index3].accbalance=savingCustomer[index3].superBalance();
+                        savingCustomer[index3].netProfit();;
                             
                     }
                     else if(type1==2){
-                        currentCustomer[index3].depositMoney();
-                        customers[index3].accbalance=currentCustomer[index3].superBalance();
+                        currentCustomer[index3].netProfit();
+                        
                     }
                     break;
                 case 6:
@@ -126,6 +143,25 @@ public class App {
                     System.out.println("Invalid Input\n");
                     break;    
             }  
+            LocalDate date = LocalDate.now();
+            if(!monthCheck(date)){loaded=false;}
+            if(!loaded){
+                if(monthCheck(date)){
+                for(int i=0;i<savingCustomer.length;i++){
+                    if(savingCustomer[i]!=null){
+                        savingCustomer[i].applyInterest();
+                        savingCustomer[i].NRV();
+                        customers[i].accbalance=savingCustomer[i].superBalance();
+                    }
+                    if(currentCustomer[i]!=null){
+                        currentCustomer[i].NRV();
+                        currentCustomer[i].transactionCountCheck();
+                        customers[i].accbalance=currentCustomer[i].superBalance();
+                    }
+                }
+                loaded=true;
+            }
+            }
         }
         
     
@@ -147,7 +183,7 @@ public class App {
     }
 
     public static boolean monthCheck(LocalDate date){
-        if(date.getDayOfMonth()==30){
+        if(date.getDayOfMonth()==20){
             return true;
         }
         return false;

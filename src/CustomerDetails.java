@@ -1,5 +1,6 @@
 //import java.net.SocketTimeoutException;
 import java.util.concurrent.ThreadLocalRandom;
+import java.time.LocalDate;
 import java.util.*;
 class CustomerDetails{
     public String name;
@@ -8,13 +9,19 @@ class CustomerDetails{
     public int accounttype;
     public long accbalance;
     public long userAge;
+    public long aadharno;
+    public long mobileno;
     static int numbers=0;
     public int loanType;
     public int loanAmount;
     public int loanDuration;
     public LoanAccount loan;
-    public int totalBalance;
-    public ArrayList<Integer> arr;
+    public long totalBalance;
+    public ArrayList<Integer> arr1;
+    public LocalDate date;
+    public int ATM_Card;
+    public int CVV;
+    public int expiryYear;
 
     Scanner sc = new Scanner(System.in);
 
@@ -37,11 +44,12 @@ class CustomerDetails{
             if(!map.containsKey(cID)){
                 System.out.println("Customer ID invalid");
             }
+            customerID=cID;
             int exitcode1=getData();
             if(exitcode1==1){return;}
 
             // For Loan Account
-
+            
 
             if(accounttype==3){
                 System.out.println("Enter the Loan Amount: ");
@@ -50,7 +58,7 @@ class CustomerDetails{
                 loanType= sc.nextInt();
                 System.out.println("Enter the Loan Duration(Min 2 years)");
                 loanDuration = sc.nextInt();
-                ArrayList<Integer> arr = map.get(cID); 
+                arr1= map.get(cID); 
                 
                     //System.out.println(arr.size());
                     // for(int i=0;i<arr.size();i++){
@@ -60,15 +68,19 @@ class CustomerDetails{
                     // }
             }
 
-
+            else{
             // System.out.print("Enter Balance : ");
             // accbalance = sc.nextLong();
+            if(accounttype==1){
+                System.out.println("Your ATM Card details\n" + "Card No.: "+ATM_Card+" CVV: "+CVV+" Expiry Year: "+expiryYear);
+            }
             map.get(cID).add(accountno);
             
             System.out.println("\nAccount Successfully Created");
             //System.out.println(customerID);
             System.out.println("Your Account no. is : " + accountno+"\n"+ "Your Customer ID: "+cID+"\n");
             }
+        }
         else if(ch=='n'){
             int exitcode2=getData();
             if(exitcode2==1){return;}
@@ -98,9 +110,13 @@ class CustomerDetails{
         System.out.println("Name: "+name);
         System.out.println("Account Type: "+accounttype);
         //System.out.println("Aadhar: "+aadharno);
-        System.out.println("Your Balance: "+accbalance);
+        if(accounttype!=3){System.out.println("Your Balance: "+accbalance);}
+        else{
+            System.out.println("Loan Amount: "+ loanAmount);
+        }
         System.out.println("\n----------------------\n");
     }
+
     private int generateCustomerId(String Fname) {
         int sum = 0;
         for (char ch : Fname.toCharArray()) {
@@ -111,11 +127,16 @@ class CustomerDetails{
     public int getData(){
         System.out.print("Age :");
         userAge=sc.nextLong();
+        System.out.println("Enter Aadhar Number: ");
+        aadharno = sc.nextLong();
+        System.out.println("Enter Mobile Number: ");
+        mobileno = sc.nextLong();
         System.out.print("Account Type :\n1.)Savings\n2.)Current\n3.)Loan\n");
         accounttype = sc.nextInt();
         if(accounttype!=3){
         System.out.print("Enter Balance : ");
         accbalance = sc.nextLong();
+
         }
         if(accounttype==3 && userAge<25){
              System.out.println("Permission Denied");
@@ -130,5 +151,14 @@ class CustomerDetails{
              numbers--;
              return 1;}
         return 0;    
-        }
-}
+    }
+    public void loanData(int cID){
+        //System.out.println("");
+        map.get(cID).add(numbers);
+        date = LocalDate.now();
+        System.out.println("\nAccount Successfully Created");
+            //System.out.println(customerID);
+        System.out.println("Your Account no. is : " + accountno+"\n"+ "Your Customer ID: "+cID+"\n");
+    }
+    
+}   
